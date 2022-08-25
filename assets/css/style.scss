@@ -1,0 +1,22 @@
+---
+---
+
+@import "{{ site.theme }}";
+
+.inner {
+  box-sizing: border-box;
+  width: calc(60% + 15rem);
+  max-width: 100%;
+}
+
+figure {
+  margin: auto;
+  box-sizing: border-box;
+  width: calc(50% + 20rem);
+  max-width: 100%;
+}
+
+sub {
+  vertical-align: sub;
+  font-size: 0.8em;
+}

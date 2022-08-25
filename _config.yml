@@ -1,2 +1,3 @@
+permalink: "/:categories/:year-:month-:day-:title/"
 theme: jekyll-theme-slate
 title: "Steve Wooster's Writings"
