@@ -28,7 +28,7 @@ Foundational Trigonometry
 
 (if you're familiar with trigonometry, feel free to [skip to the next section](#foundational-vector-algebra))
 
-The most important thing to know about trigonometry is the meaning of [`sin(a)` and `cos(a)`](https://en.wikipedia.org/wiki/Sine_and_cosine) (pronounced sine of `a` and cosine of `a`, respectively). An interactive diagram is worth a thousand words, so...
+The most important thing to know about trigonometry is the meaning of [\\(sin(a)\\) and \\(cos(a)\\)](https://en.wikipedia.org/wiki/Sine_and_cosine) (pronounced sine of \\(a\\) and cosine of \\(a\\), respectively). An interactive diagram is worth a thousand words, so...
 
 <figure>
   <div id="figure-sincos" class="jxgbox" style="aspect-ratio: 3/2"></div>
@@ -121,11 +121,11 @@ The most important thing to know about trigonometry is the meaning of [`sin(a)` 
   board.unsuspendUpdate();
 }</script>
 
-That is to say, if you have a circle centered at the [origin](https://en.wikipedia.org/wiki/Origin_(mathematics)) (the coordinate `⟨0, 0⟩`) with a [radius](https://en.wikipedia.org/wiki/Radius) of 1, and you walk along the [circumference](https://en.wikipedia.org/wiki/Circumference) from `⟨1, 0⟩` towards `⟨0, 1⟩` for a distance of `a`, then your position has the [cartesian coordinates](https://en.wikipedia.org/wiki/Cartesian_coordinate_system) `⟨cos(a), sin(a)⟩`. In this situation, `a` represents an angle measured in [radians](https://en.wikipedia.org/wiki/Radian); whereas there are 360 degrees in a full revolution, there are only 2π radians in a full revolution.
+That is to say, if you have a circle centered at the [origin](https://en.wikipedia.org/wiki/Origin_(mathematics)) (the coordinate \\((0, 0)\\)) with a [radius](https://en.wikipedia.org/wiki/Radius) of 1, and you walk along the [circumference](https://en.wikipedia.org/wiki/Circumference) from \\((1, 0)\\) towards \\((0, 1)\\) for a distance of \\(a\\), then your position has the [cartesian coordinates](https://en.wikipedia.org/wiki/Cartesian_coordinate_system) \\((cos(a), sin(a))\\). In this situation, \\(a\\) represents an angle measured in [radians](https://en.wikipedia.org/wiki/Radian); whereas there are 360 degrees in a full revolution, there are only 2π radians in a full revolution.
 
-It's often useful to convert an angle to a [slope](https://en.wikipedia.org/wiki/Slope), which can be done with `sin(a) / cos(a)`. This is so common it has a special name: `tan(a)` (pronounced tangent of `a`).
+It's often useful to convert an angle to a [slope](https://en.wikipedia.org/wiki/Slope), which can be done with \\(sin(a) / cos(a)\\). This is so common it has a special name: \\(tan(a)\\) (pronounced tangent of \\(a\\)).
 
-If you want to go from cartesian coordinates to an angle (measured in radians, of course), you can do so with `atan2(y, x)` (`atan` is pronounced arc-tangent, with "arc" meaning inverse).
+If you want to go from cartesian coordinates to an angle (measured in radians, of course), you can do so with \\(\"atan2\"(y, x)\\) ("atan" is pronounced arc-tangent, with "arc" meaning inverse).
 
 Foundational Vector Algebra
 ---------------------------
@@ -137,7 +137,7 @@ When we talk about [vectors](https://en.wikipedia.org/wiki/Vector_(mathematics_a
 * The geometry-focused definition: A length and direction
 * The programmer/engineer definition: A tuple (list) of numbers, usually acting as coordinates, offsets or weights
 
-We usually depict vectors with arrows, but there's an important wrinkle to be aware of: Whereas an arrow may appear to have a particular start and end, a vector is more like an offset or displacement; the only thing that matters is where the end is _relative to the start_. To make that concrete, in the diagram below, `A` and `B` are the same vector, but `C` and `D` aren't equal to any other vector shown (unless you've elected to move the dot so they all have zero length):
+Due to the first definition, mathematicians are fond of depicting vectors via arrows, going so far as to draw arrows over their names (e.g. \\(vec v\\)). However, there's an important wrinkle to be aware of: Whereas an arrow may appear to have a particular start and end, a vector is more like an offset or displacement; the only thing that matters is where the end is _relative to the start_. To make that concrete, in the diagram below, \\(vec a\\) and \\(vec b\\) are the same vector, but \\(vec c\\) and \\(vec d\\) aren't equal to any other vector shown (unless you've elected to move the dot so they all have zero length):
 
 <figure>
   <div id="figure-vector-equivalence" class="jxgbox" style="aspect-ratio: 3/2"></div>
@@ -152,32 +152,40 @@ We usually depict vectors with arrows, but there's an important wrinkle to be aw
 
   let origin = board.create('point', [0, 0], { fixed: true, visible: false });
   let bEnd = board.create('point', [1, 3], { withLabel: false });
-  let b = board.create('arrow', [origin, bEnd], { name: "B", withLabel: true });
+  let b = board.create('arrow', [origin, bEnd], { name: "b", withLabel: true });
 
   let aStart = board.create('point', [-8, -2], { visible: false });
   let aEnd = board.create('parallelpoint', [origin, bEnd, aStart], { visible: false });
-  let a = board.create('arrow', [aStart, aEnd], { name: "A", withLabel: true });
+  let a = board.create('arrow', [aStart, aEnd], { name: "a", withLabel: true });
 
   let cStart = board.create('point', [2, -5], { visible: false });
   let cEnd = board.create('point', [
     () => cStart.X() + 0.3 * bEnd.X(),
     () => cStart.Y() + 0.3 * bEnd.Y(),
   ], { visible: false });
-  let c = board.create('arrow', [cStart, cEnd], { name: "C", withLabel: true, color: 'darkgreen' });
+  let c = board.create('arrow', [cStart, cEnd], { name: "c", withLabel: true, color: 'darkgreen' });
 
   let dStart = board.create('point', [5, 1], { visible: false });
   let dEnd = board.create('point', [
     () => dStart.X() + bEnd.Y(),
     () => dStart.Y() - bEnd.X(),
   ], { visible: false });
-  let d = board.create('arrow', [dStart, dEnd], { name: "D", withLabel: true, color: 'darkred' });
+  let d = board.create('arrow', [dStart, dEnd], { name: "d", withLabel: true, color: 'darkred' });
 
   board.unsuspendUpdate();
 }</script>
 
-As programmers, we usually represent a vector as the cartesian coordinates of where its endpoint would be if its start were situated at the origin; the mathy way of writing that is `⟨x, y, z⟩` (though a vector may have any number of components).
+As programmers, we usually represent a vector as the cartesian coordinates of where its endpoint would be if its start were situated at the origin; the mathy way of writing that is either \\((:x, y, z:)\\) or vertically:
 
-A pair of vectors may be added component-wise, i.e. `⟨a, b, c⟩ + ⟨d, e, f⟩ = ⟨a + d, b + e, c + f⟩`. This corresponds to adding vectors head-to-tail:
+\\[ ((x), (y), (z)) \\]
+
+A pair of vectors may be added component-wise, i.e.:
+
+\\[
+  ((a), (b), (c)) + ((d), (e), (f)) = ((a + d), (b + e), (c +f))
+\\]
+
+This corresponds to adding vectors head-to-tail:
 
 <figure>
   <div id="figure-vector-addition" class="jxgbox" style="aspect-ratio: 3/2"></div>
@@ -210,7 +218,11 @@ A pair of vectors may be added component-wise, i.e. `⟨a, b, c⟩ + ⟨d, e, f�
   board.unsuspendUpdate();
 }</script>
 
-A vector may be multiplied by a [scalar](https://en.wikipedia.org/wiki/Scalar_(mathematics)) (a 1-dimensional number), i.e. `a * ⟨b, c, d⟩ = ⟨a * b, a * c, a * d⟩`. This scales (resizes) the vector, hence the term "scalar".
+A vector may be multiplied by a [scalar](https://en.wikipedia.org/wiki/Scalar_(mathematics)) (a 1-dimensional number), i.e.:
+
+\\[ a ((b), (c), (d)) = ((a b), (a c), (a d)) \\]
+
+This scales (resizes) the vector, hence the term "scalar":
 
 <figure>
   <div id="figure-vector-scaling" class="jxgbox" style="aspect-ratio: 3/2"></div>
@@ -242,12 +254,14 @@ A vector may be multiplied by a [scalar](https://en.wikipedia.org/wiki/Scalar_(m
   board.unsuspendUpdate();
 }</script>
 
-For anything we're interested in, a vector's length is determined through the Pythagorean theorem, i.e. `|⟨a, b, c⟩| = sqrt(a² + b² + c²)`. A [unit vector](https://en.wikipedia.org/wiki/Unit_vector) is any vector with a length of 1.
+For anything we're interested in, a vector's length is determined through the Pythagorean theorem, i.e. \\( abs((:a, b, c:)) = sqrt(a^2 + b^2 + c^2) \\). A [unit vector](https://en.wikipedia.org/wiki/Unit_vector) is any vector with a length of 1; mathematicians like to write them with hats, e.g. \\(hat v\\). Traditionally \\(hat x\\) points towards the +X axis, \\(hat y\\) points towards the +Y axis and \\(hat z\\) points towards the +Z axis.
+
+Finally, a vector may have any number of components; it doesn't have to be 3-dimensional.
 
 Rotating Points
 ---------------
 
-Now that we have some tools on our belt, let's figure out how to solve a much simpler version of the 3D-world-to-screen mapping problem: 2D rotation.
+Now that we have some tools under our belt, let's figure out how to solve a much simpler version of the 3D-world-to-screen mapping problem: 2D rotation.
 
 Imagine you're building a 2D game where you can rotate the camera or world, perhaps something like [Cameltry](https://en.wikipedia.org/wiki/Cameltry). So you have a bunch of 2D points, representing camera-relative positions of various objects, and you want to rotate them all around the origin by one particular angle. In other words, you want to build something like this: (light grey dots represent original unrotated positions)
 
@@ -338,7 +352,15 @@ pub fn rotate(p: Vec2, rotation_angle: Radians) -> Vec2 {
 
 That _works_, but it's much slower than it needs to be. In computer graphics, we generally regard additions and multiplications as dirt-cheap, and stuff like `sqrt(x)`, `atan2(y, x)`, `sin(x)`, or `cos(x)` as expensive. Not only does the above code have to call all those nasty expensive functions, but their inputs all ultimately depend on `p` so the expensive stuff needs to be recalculated _for every single point that gets rotated_. Fortunately, there's a way to factor out the expensive computations...
 
-Vector algebra courses sometimes like to make a big fuss over how cartesian coordinates are just a shorthand for a [linear combination](https://en.wikipedia.org/wiki/Linear_combination) of [basis vectors](https://en.wikipedia.org/wiki/Basis_(linear_algebra)), i.e. `⟨x, y⟩ = x * ⟨1, 0⟩ + y * ⟨0, 1⟩`. This turns out to be important because if you have `basis_x = ⟨1, 0⟩` and `basis_y = ⟨0, 1⟩` and a point `p = ⟨x, y⟩ = x * basis_x + y * basis_y`, then rotating `basis_x` and `basis_y` will also rotate `p`. This is another one of those circumstances where an interactive diagram is worth a thousand words, so...
+Vector algebra courses sometimes like to make a big fuss over how cartesian coordinates are just a shorthand for a [linear combination](https://en.wikipedia.org/wiki/Linear_combination) of [basis vectors](https://en.wikipedia.org/wiki/Basis_(linear_algebra)), i.e.:
+
+\\[\{:
+  (((x), (y)), =, ((x), (0)) + ((0), (y))),
+  (, =, x ((1), (0)) + y ((0), (1))),
+  (, =, x hat x + y hat y)
+:\}\\]
+
+This turns out to be important because if you have a point \\(p\\) written in terms of the basis vectors \\(hat x\\) and \\(hat y\\), then rotating those basis vectors will also rotate \\(p\\). This is another one of those circumstances where an interactive diagram is worth a thousand words, so...
 
 <figure>
   <div id="figure-basis-rotation" class="jxgbox" style="aspect-ratio: 3/2"></div>
@@ -376,7 +398,7 @@ Vector algebra courses sometimes like to make a big fuss over how cartesian coor
   let pEnd = board.create('point', [
     () => scaledBasisXEnd.X() + 2 * basisYEnd.X(),
     () => scaledBasisXEnd.Y() + 2 * basisYEnd.Y(),
-  ], { name: "p = 4 * basix_x + 2 * basis_y", fixed: true, label: { parse: false } } );
+  ], { name: "p = \\(4 hat x + 2 hat y\\)", fixed: true, label: { parse: false, useMathJax: true } } );
 
   let scaledBasisX = board.create('arrow', [origin, scaledBasisXEnd], { color: '#f88' });
   let scaledBasisY = board.create('arrow', [scaledBasisXEnd, pEnd], { color: '#8f8' });
@@ -385,30 +407,34 @@ Vector algebra courses sometimes like to make a big fuss over how cartesian coor
   let basisY = board.create('arrow', [origin, basisYEnd], { color: 'darkgreen' });
 
   let basisXMid = board.create('midpoint', [origin, basisXEnd], { visible: false });
-  let basisXLabel = board.create('text', [0, 0, 'basis_x'], {
+  let basisXLabel = board.create('text', [0, 0, '\\(hat x\\)'], {
     anchor: basisXMid,
     fixed: true,
     parse: false,
+    useMathJax: true,
   });
   let basisYMid = board.create('midpoint', [origin, basisYEnd], { visible: false });
-  let basisYLabel = board.create('text', [0, 0, 'basis_y'], {
+  let basisYLabel = board.create('text', [0, 0, '\\(hat y\\)'], {
     anchor: basisYMid,
     fixed: true,
     parse: false,
+    useMathJax: true,
     anchorX: 'right',
   });
 
   let scaledBasisXMid = board.create('midpoint', [origin, scaledBasisXEnd], { visible: false });
-  let scaledBasisXLabel = board.create('text', [0, 0, '4 * basis_x'], {
+  let scaledBasisXLabel = board.create('text', [0, 0, '\\(4 hat x\\)'], {
     anchor: scaledBasisXMid,
     fixed: true,
     parse: false,
+    useMathJax: true,
   });
   let scaledBasisYMid = board.create('midpoint', [scaledBasisXEnd, pEnd], { visible: false });
-  let scaledBasisYLabel = board.create('text', [0, 0, '2 * basis_y'], {
+  let scaledBasisYLabel = board.create('text', [0, 0, '\\(2 hat y\\)'], {
     anchor: scaledBasisYMid,
     fixed: true,
     parse: false,
+    useMathJax: true,
   });
 
   board.unsuspendUpdate();
@@ -573,7 +599,7 @@ In much the same way that rotating bases vectors will rotate any point written i
   let pEnd = board.create('point', [
     () => scaledBasisXEnd.X() + 2 * basisYEnd.X(),
     () => scaledBasisXEnd.Y() + 2 * basisYEnd.Y(),
-  ], { name: "p = 4 * basix_x + 2 * basis_y", fixed: true, label: { parse: false } } );
+  ], { name: "\\(p = 4 hat x + 2 hat y\\)", fixed: true, label: { parse: false, useMathJax: true } } );
 
   let scaledBasisX = board.create('arrow', [origin, scaledBasisXEnd], { color: '#f88' });
   let scaledBasisY = board.create('arrow', [scaledBasisXEnd, pEnd], { color: '#8f8' });
@@ -582,30 +608,34 @@ In much the same way that rotating bases vectors will rotate any point written i
   let basisY = board.create('arrow', [origin, basisYEnd], { color: 'darkgreen' });
 
   let basisXMid = board.create('midpoint', [origin, basisXEnd], { visible: false });
-  let basisXLabel = board.create('text', [0, 0, 'basis_x'], {
+  let basisXLabel = board.create('text', [0, 0, '\\(hat x\\)'], {
     anchor: basisXMid,
     fixed: true,
     parse: false,
+    useMathJax: true,
   });
   let basisYMid = board.create('midpoint', [origin, basisYEnd], { visible: false });
-  let basisYLabel = board.create('text', [0, 0, 'basis_y'], {
+  let basisYLabel = board.create('text', [0, 0, '\\(hat y\\)'], {
     anchor: basisYMid,
     fixed: true,
     parse: false,
+    useMathJax: true,
     anchorX: 'right',
   });
 
   let scaledBasisXMid = board.create('midpoint', [origin, scaledBasisXEnd], { visible: false });
-  let scaledBasisXLabel = board.create('text', [0, 0, '4 * basis_x'], {
+  let scaledBasisXLabel = board.create('text', [0, 0, '\\(4 hat x\\)'], {
     anchor: scaledBasisXMid,
     fixed: true,
     parse: false,
+    useMathJax: true,
   });
   let scaledBasisYMid = board.create('midpoint', [scaledBasisXEnd, pEnd], { visible: false });
-  let scaledBasisYLabel = board.create('text', [0, 0, '2 * basis_y'], {
+  let scaledBasisYLabel = board.create('text', [0, 0, '\\(2 hat y\\)'], {
     anchor: scaledBasisYMid,
     fixed: true,
     parse: false,
+    useMathJax: true,
   });
 
   board.unsuspendUpdate();
@@ -701,12 +731,18 @@ With some more tweaks, we can get `Transformation` to also handle translation (m
 
 But first I should probably come clean: **We've re-invented [matrices](https://en.wikipedia.org/wiki/Matrix_(mathematics)) and `Transformation` is just a 2x2 matrix.**
 
-You see, functions of the form `f(⟨a, b, c, ...⟩) = a * basis_a + b * basis_b + c * basis_c + ...` are used _everywhere_, so there's a special name for them: [linear transformations](https://en.wikipedia.org/wiki/Linear_map). Mathematicians, lazy reprobates that they are, have decided to fund their syntactic sugar addiction by pawning off most of the notation of linear transformations, leaving behind only a grid of coefficients with one column per basis vector. For example, the mathematical notation for `Transformation` would be:
+You see, functions of the form \\(f((:a, b, c, ...:)) = a vec A + b vec B + c vec C + ...\\) (for some \\(vec A\\), \\(vec B\\), \\(vec C\\), etc) are used _everywhere_, so there's a special name for them: [linear transformations](https://en.wikipedia.org/wiki/Linear_map). Mathematicians, lazy reprobates that they are, have decided to fund their syntactic sugar addiction by pawning off most of the notation of linear transformations, leaving behind only a grid of coefficients with one column per basis vector. For example, the mathematical notation for `Transformation` would be:
 
-| `basis_x.x` | `basis_y.x` |
-| `basis_x.y` | `basis_y.y` |
+\\[[
+  [\"basis_x.x\", \"basis_y.x\"],
+  [\"basis_x.y\", \"basis_y.y\"]
+]\\]
 
-(well, ok, if this were _real_ mathematical notation, there wouldn't be any lines separating the 4 values... I told you mathematicians were lazy!) Anyway, when you represent a linear transformation as a 2D grid, it's called a "matrix".
+When represented this way, a linear transformation is called a "matrix". Just to reiterate, the above matrix represents this function:
+
+\\[
+  f((:x, y:)) = x ((\"basis_x.x\"), (\"basis_x.y\")) + y ((\"basis_y.x\"), (\"basis_y.y\"))
+\\]
 
 Matrices are very common in computer graphics libraries and `glam` is no exception. We _could_ shrink our `Transformation` code by rewriting it to use matrices...
 
@@ -742,24 +778,33 @@ pub fn scaling(scale: f32) -> Transformation {
 
 Before moving on from the above code, I want to draw attention to the fact that it applies the matrix to a vector by multiplying the two together. Unlike regular scalar multiplication, any multiplication involving matrices ***isn't*** [commutative](https://en.wikipedia.org/wiki/Commutative_property) (so order matters). With the way I've been describing matrices (one column per basis vector), you want to multiply with the matrix on the left and the vector on the right. An easy way to remember this is that a matrix represents a function, and much like how you'd write `transform(point)` when `transform` is a function, you should write `transform * point` when `transform` is a matrix.
 
-Back to translation matrices... if you think about it, you may notice a roadblock to using a `Mat2` to implement translation: Suppose we have the vector `⟨0, 0⟩`... applying a 2x2 matrix to that vector yields `0 * basis_x + 0 * basis_y = ⟨0, 0⟩`. In other words... if a vector is all zeros, there's no matrix that can be applied to it to produce a non-zero vector.
+Back to translation matrices... if you think about it, you may notice a roadblock to using a `Mat2` to implement translation: Suppose we have the vector \\((:0, 0:)\\)... applying a 2x2 matrix to that vector yields \\([[a, b], [c, d]] ((0), (0)) = 0 ((a), (c)) + 0 ((b), (d)) = ((0), (0)) + ((0), (0)) = ((0), (0))\\). In other words... if a vector is all zeros, there's no matrix that can be applied to it to produce a non-zero vector.
 
-Fortunately, that problem is easy enough to kludge around: Instead of representing a point `(x, y)` with the vector `⟨x, y⟩`, we'll use the vector `⟨x, y, 1⟩`. Then we can implement translation with a 3x3 matrix that looks like this:
+Fortunately, that problem is easy enough to kludge around: Instead of representing a point \\((x, y)\\) with the vector \\((:x, y:)\\), we'll use the vector \\((:x, y, 1:)\\). Then we can implement translation with a 3x3 matrix that looks like this:
 
-| 1 | 0 | `translation.x` |
-| 0 | 1 | `translation.y` |
-| 0 | 0 | 1  |
+\\[[
+  [1, 0, \"translation.x\"],
+  [0, 1, \"translation.y\"],
+  [0, 0, 1]
+]\\]
 
-This ends up representing the function `f(⟨x, y, 1⟩) = x * ⟨1, 0, 0⟩ + y * ⟨0, 1, 0⟩ + 1 * ⟨translation.x, translation.y, 1⟩ = ⟨x + translation.x, y + translation.y, 1⟩` which is what we want. Also, note that it keeps the final component intact with a value of 1, so that we can chain several translations together. `glam` provides [`Mat3::from_translation(vec2)`](https://docs.rs/glam/0.21.3/glam/f32/struct.Mat3.html#method.from_translation) to generate the above translation matrix.
+This ends up representing the function:
+
+\\[
+  f((:x, y, 1:)) = x ((1), (0), (0)) + y ((0), (1), (0)) + 1 ((\"translation.x\"), (\"translation.y\"), (1))
+                 = ((x + \"translation.x\"), (y + \"translation.y\"), (1))
+\\]
+
+...which is what we want. Also, note that it keeps the final component intact with a value of 1, so that we can chain several translations together. `glam` provides [`Mat3::from_translation(vec2)`](https://docs.rs/glam/0.21.3/glam/f32/struct.Mat3.html#method.from_translation) to generate the above translation matrix.
 
 Admittedly, tacking an extra component onto vectors feels like a weird ugly hack, but it'll help us in the long run: We'll eventually expand it to [homogeneous coordinates](https://en.wikipedia.org/wiki/Homogeneous_coordinates) which will be critical for 3D perspective transformations.
 
 Bringing everything together in 2D
----------------------------------
+----------------------------------
 
 We now have all the building blocks of 2D spatial transformations: translation, rotation and scaling! However, you might be starting to wonder: if you have a camera with full freedom of movement, will you have to pass around 3 different matrices to anything that wants to draw stuff? If you represent an entity's position/rotation/scaling with matrices, does that add another 3 matrices that must be applied to each point of that entity? That seems... less than ideal.
 
-Fortunately, matrices can be [chained together via multiplication](https://en.wikipedia.org/wiki/Matrix_multiplication), which will produce a _single_ matrix that behaves identically to the composition of the matrices that went into it. To rephrase in terms of math, `matrix_a * (matrix_b * vector) = (matrix_a * matrix_b) * vector`. (fun note: you can think of a vector as a matrix with a single column, and applying a matrix to said vector works out to just be a special case of matrix multiplication)
+Fortunately, matrices can be [chained together via multiplication](https://en.wikipedia.org/wiki/Matrix_multiplication), which will produce a _single_ matrix that behaves identically to the composition of the matrices that went into it. To rephrase in terms of math, if \\(A\\) and \\(B\\) are matrices, then \\(A(B vec v) = (A B) vec v\\). (fun note: you can think of a vector as a matrix with a single column, and applying a matrix to said vector works out to just be a special case of matrix multiplication)
 
 So... this means if we have a 2D camera, we can easily construct a single transformation to map from screen coordinates to world coordinates:
 
@@ -813,7 +858,7 @@ There's one last thing worth mentioning before we go on to 3D... It's often usef
 Your first 3D perspective
 -------------------------
 
-We now have a pretty good grasp on how to use matrices to represent 2D spatial transformations: we can use [`Vec3`](https://docs.rs/glam/0.21.3/glam/f32/struct.Vec3.html) to represent 2D points and directions, and we can use [`Mat3`](https://docs.rs/glam/0.21.3/glam/f32/struct.Mat3.html) to represent any number of 2D translation/rotation/scaling transforms. Extending this to 3D is trivial: just use [`Vec4`](https://docs.rs/glam/0.21.3/glam/f32/struct.Vec4.html) and [`Mat4`](https://docs.rs/glam/0.21.3/glam/f32/struct.Mat4.html). However, there's one last piece of the puzzle we need to draw 3D scenes: Perspective transformations.
+We now have a pretty good grasp on how to use matrices to represent 2D spatial transformations: we can use [`Vec3`](https://docs.rs/glam/0.21.3/glam/f32/struct.Vec3.html) to represent 2D points and directions, and we can use [`Mat3`](https://docs.rs/glam/0.21.3/glam/f32/struct.Mat3.html) to represent any combination of 2D translation/rotation/scaling transforms. Extending this to 3D is trivial: just use [`Vec4`](https://docs.rs/glam/0.21.3/glam/f32/struct.Vec4.html) and [`Mat4`](https://docs.rs/glam/0.21.3/glam/f32/struct.Mat4.html). However, there's one last piece of the puzzle we need to draw 3D scenes: Perspective transformations.
 
 You know how objects look smaller as they get farther away? That's what perspective transformations do; they map a [view frustum](https://en.wikipedia.org/wiki/Viewing_frustum) to normalized device coordinates (screen coordinates and depth).
 
@@ -917,7 +962,7 @@ Let's start off creating a perspective transformation matrix for the easiest pos
   });
 
   let origin = board.create('point', [0, 0], { fixed: true, visible: false });
-  let p = board.create('point', [2.5, -1.5], { name: "P" });
+  let p = board.create('point', [2.5, -1.5], { name: "p" });
   let pRay = board.create('arrow', [origin, p], {
     color: 'teal',
   });
@@ -935,29 +980,74 @@ Let's start off creating a perspective transformation matrix for the easiest pos
   board.unsuspendUpdate();
 }</script>
 
-In most graphics systems, screen coordinates range from -1 to 1 in both the X and Y axes. If we imagine the screen being a 2x2 square that actually exists in the game world, lying on the `z = 1` plane, then that gives us an easy way to calculate the screen coordinates of a point `P`: We just draw a line from the camera to `P` and see where it intersects the screen. In the diagram above, the vertical red line represents the screen (seen from the side); try moving `P` around to see that the intersection really is calculating the Y screen coordinate of `P`.
 
-So how do we calculate e.g. the intersection? The line to `P` is straight, so we can generate points on it with `y = P.y / P.z * z`. We conveniently placed the screen at `z = 1`, so we get `screen_coord.y = P.y / P.z * 1 = P.y / P.z`. The same logic holds for the X axis so the screen coordinates for a point `P` are `(P.x / P.z, P.y / P.z)`.
+In most graphics systems, screen coordinates range from -1 to 1 in both the X and Y axes. If we imagine the screen being a 2x2 square that actually exists in the game world, lying on the \\(z = 1\\) plane, then that gives us an easy way to calculate the screen coordinates of a point \\(p\\): We just draw a line from the camera to \\(p\\) and see where it intersects the screen. In the diagram above, the vertical red line represents the screen (seen from the side); try moving \\(p\\) around to see that the intersection really is calculating the Y screen coordinate of \\(p\\).
 
-Here we run into a problem: We want a matrix that will represent `f(⟨x, y, z, 1⟩) = ⟨x/z, y/z, ?, ?⟩` but matrices can only represent linear transformations and linear transformations can't divide by their arguments. We simply can't build a matrix to do what we want. _However..._ remember that kludgy last component that's always 1? If we redefine the last component to be the length of 1 unit of distance, so that the vector `⟨x, y, z, w⟩` represents the point `(x/w, y/w, z/w)`, that'd allow us to smuggle a division into the matrix. In that case, we could use a matrix like this:
+So how do we calculate the intersection? If you draw a straight line from the camera, through a particular point on the in-world screen, all points on the line will satisfy the equations:
 
-| 1 | 0 | 0 | 0 |
-| 0 | 1 | 0 | 0 |
-| 0 | 0 | 0 | 0 |
-| 0 | 0 | 1 | 0 |
+\\[
+  x = \"screen_coord.x\" * z
+\\]
 
-...which represents the function `f(⟨x, y, z, w⟩) = x * ⟨1, 0, 0, 0⟩ + y * ⟨0, 1, 0, 0⟩ + z * ⟨0, 0, 0, 1⟩ + w * ⟨0, 0, 0, 0⟩ = ⟨x, y, 0, z⟩`, and the returned vector represents the point `(x/z, y/z, 0)`, which is what we want!
+\\[
+  y = \"screen_coord.y\" * z
+\\]
 
-This trick of interpreting `⟨x, y, z, w⟩` as `(x/w, y/w, z/w)` is known as [homogeneous coordinates](https://en.wikipedia.org/wiki/Homogeneous_coordinates) and although it feels icky for a point to have multiple representations (e.g. `⟨17, 21, 43, 1⟩` and `⟨34, 42, 86, 2⟩` are the same point), it can make a lot of math simpler. Happily, it plays nicely with the rules of matrices, so we can still e.g. chain matrices together with multiplication.
+You can easily verify that at \\(z = 1\\), the \\(x\\)/\\(y\\) coords equal the screen coords, so the line does indeed pass through the point \\((\"screen_coord.x\", \"screen_coord.y\", 1)\\). Putting these equations in vector notation and solving for \\(\"screen_coord\"\\):
+
+\\[
+  \"screen_coord\" = ((x/z), (y/z))
+\\]
+
+So, we want a matrix representing some function like \\(f((:x, y, z, 1:)) = (:x/z, y/z, ?, ?:)\\). Unfortunately, that's not possible; a 4x4 matrix can only represent a function of this form: (for some set of \\(C\\) constants)
+
+\\[
+  f((:x, y, z, w:)) = (
+    (C_00 x + C_10 y + C_20 z + C_30 w),
+    (C_01 x + C_11 y + C_21 z + C_31 w),
+    (C_02 x + C_12 y + C_22 z + C_32 w),
+    (C_03 x + C_13 y + C_23 z + C_33 w)
+  )
+\\]
+
+Notice there's nothing we can set any of the \\(C\\) constants to in order to get it to divide by \\(z\\). We simply can't build a matrix to do what we want. Bummer!
+
+_However..._ remember that kludgy last component that's always 1? If we redefine the last component to be the length of 1 unit of distance, so that the vector \\((:x, y, z, w:)\\) represents the point \\((x/w, y/w, z/w)\\), that'd allow us to smuggle a division into the matrix. In that case, we could use a matrix like this:
+
+\\[[
+  [1, 0, 0, 0],
+  [0, 1, 0, 0],
+  [0, 0, 0, 0],
+  [0, 0, 1, 0]
+]\\]
+
+...which represents the function:
+
+\\[
+  f((:x, y, z, w:)) = x ((1), (0), (0), (0)) + y ((0), (1), (0), (0)) + z ((0), (0), (0), (1)) + w ((0), (0), (0), (0)) = ((x), (y), (0), (z))
+\\]
+
+...and the returned vector \\((:x, y, 0, z:)\\) represents the point \\((x/z, y/z, 0)\\), which is what we want!
+
+This trick of interpreting \\((:x, y, z, w:)\\) as \\((x/w, y/w, z/w)\\) is known as [homogeneous coordinates](https://en.wikipedia.org/wiki/Homogeneous_coordinates) and although it feels icky for a point to have multiple representations (e.g. \\((:17, 21, 43, 1:)\\) and \\((:34, 42, 86, 2:)\\) are the same point), it can make a lot of math simpler. Happily, it plays nicely with the rules of matrices, so we can still e.g. chain matrices together with multiplication.
 
 We're not done yet: When drawing a scene, you need some way to ensure nearby geometry is drawn over far away geometry. Although you _could_ try to sort each triangle by how far away it is and draw them from back to front, that'd require you to store and sort an entire scene's worth of triangles (so it'd use a ton of memory _and_ be slow to boot)... and it'd _still_ break whenever two triangles intersect. A much easier approach is use a [depth buffer](https://en.wikipedia.org/wiki/Z-buffering) to store how far from the camera each rendered pixel is, then only draw individual pixels of a triangle that are closer than any previous pixels. However, in order for this to work, we need to map the visible portion of the Z axis to the range 0 to 1. There are a number of different mappings we can choose, and the mapping doesn't have to be linear, it just need to be [monotonic](https://en.wikipedia.org/wiki/Monotonic_function). I'll go with a particularly nice one that maps infinity to 0 and the near-clipping plane (the closest points you can see) to 1:
 
-| 1 | 0 | 0 | 0 |
-| 0 | 1 | 0 | 0 |
-| 0 | 0 | 0 | `near_z` |
-| 0 | 0 | 1 | 0 |
+\\[[
+  [1, 0, 0, 0],
+  [0, 1, 0, 0],
+  [0, 0, 0, \"near_z\"],
+  [0, 0, 1, 0]
+]\\]
 
-This which represents the function `f(⟨x, y, z, w⟩) = x * ⟨1, 0, 0, 0⟩ + y * ⟨0, 1, 0, 0⟩ + z * ⟨0, 0, 0, 1⟩ + w * ⟨0, 0, near_z, 0⟩ = ⟨x, y, near_z * w, z⟩`, and `⟨x, y, near_z * w, z⟩` represents the point `(x/z, y/z, near_z*w/z)`. It's pretty easy to verify that `near_z / z` maps `z = near_z` to 1 and `z = infinity` to 0. This matrix does what we want: It represents a camera sitting at the origin, pointing towards +Z, with a 90° [FOV](https://en.wikipedia.org/wiki/Field_of_view_in_video_games), and it returns appropriate screen coords and depth for any point passed to it!
+This which represents the function:
+
+\\[
+  f((:x, y, z, w:)) = x ((1), (0), (0), (0)) + y ((0), (1), (0), (0)) + z ((0), (0), (0), (1)) + w ((0), (0), (\"near_z\"), (0))
+                    = ((x), (y), (\"near_z\" * w), (z))
+\\]
+
+...and \\((:x, y, \"near_z\" * w, z:)\\) represents the point \\((x/z, y/z, (\"near_z\" * w)/z)\\). Notice that when \\(w = 1\\), the expression \\((\"near_z\" * w)/z\\) evaluates to 1 when \\(z = \"near_z\"\\), and evaluates to 0 when \\(z = oo\\). This matrix does what we want: It represents a camera sitting at the origin, pointing towards +Z, with a 90° [FOV](https://en.wikipedia.org/wiki/Field_of_view_in_video_games), and it returns appropriate screen coords and depth for any point passed to it!
 
 Adjusting 3D perspectives
 -------------------------
@@ -1049,7 +1139,7 @@ Next, we need to handle FOV adjustments so that we're not stuck drawing square i
   });
 
   let origin = board.create('point', [0, 0], { fixed: true, visible: false });
-  let p = board.create('point', [2.5, -1.5], { name: "P" });
+  let p = board.create('point', [2.5, -1.5], { name: "p" });
   let pRay = board.create('arrow', [origin, p], {
     color: 'teal',
   });
@@ -1067,14 +1157,30 @@ Next, we need to handle FOV adjustments so that we're not stuck drawing square i
   board.unsuspendUpdate();
 }</script>
 
-However, once we do that, the intersection of the line-to-`P` with the screen no longer has coordinates that range from -1 to 1; the intersection's Y coordinate now ranges from `-height/2` to `height/2`. We can fix that by dividing the Y output of our perspective matrix by `height/2` (which I'll call `half_height`), and we can even bake that into the perspective matrix itself. Doing the same for X and `half_width` yields:
+However, once we do that, the intersection of the line-to-\\(p\\) with the screen no longer has coordinates that range from -1 to 1; the intersection's Y coordinate now ranges from \\(-\"height\"/2\\) to \\(\"height\"/2\\). We can fix that by dividing the Y output of our perspective matrix by \\(\"height\"/2\\) (which I'll call \\(\"half_height\"\\)), and we can even bake that into the perspective matrix itself. Doing the same for X and \\(\"half_width\"\\) yields:
 
-| 1/`half_width` | 0 | 0 | 0 |
-| 0 | 1/`half_height` | 0 | 0 |
-| 0 | 0 | 0 | `near_z` |
-| 0 | 0 | 1 | 0 |
+\\[[
+  [1/\"half_width\", 0, 0, 0],
+  [0, 1/\"half_height\", 0, 0],
+  [0, 0, 0, \"near_z\"],
+  [0, 0, 1, 0]
+]\\]
 
-So... how do we choose `half_width` and `half_height`? The most important thing is that `half_height` and `half_width` have the same proportions as the image you're drawing to, so `half_height = image.height / image.width * half_width`. Beyond that, `half_height = tan(vertical_fov/2)` and `half_width = tan(horizontal_fov/2)`. Probably the easiest thing to do is take a vertical FOV and aspect ratio, and use the vertial FOV to generate `half_height`, then use the aspect ratio to generate the appropriate `half_width`:
+So... how do we choose \\(\"half_width\"\\) and \\(\"half_height\"\\)? The most important things that need to always be true are:
+
+\\[
+  \"half_width\" / \"half_height\"  = \"image.width\" / \"image.height\" = \"aspect_ratio\"
+\\]
+
+\\[
+  \"half_height\" = tan(\"vertical_fov\"/2)
+\\]
+
+\\[
+  \"half_width\" = tan(\"horizontal_fov\"/2)
+\\]
+
+The easiest approach is to take either \\(\"vertical_fov\"\\) or \\(\"horizontal_fov\"\\), then use \\(\"aspect_ratio\"\\) to generate the other. For example:
 
 ```rust
 use glam::Mat4;
@@ -1093,7 +1199,19 @@ fn perspective_infinite_reverse_rh(vertical_fov: f32, aspect_ratio: f32, near_z:
 }
 ```
 
-This gets the job done (and `glam` provides [Mat4::perspective_infinite_reverse_rh](https://docs.rs/glam/0.21.3/glam/f32/struct.Mat4.html#method.perspective_infinite_reverse_rh) to build this matrix for you), but it'll result in an inappropriately large horizontal field of view if the screen (or window) is short and wide. Personally I'm a fan of specifying a diagonal field of view and aspect ratio. Starting with `half_width² + half_height² = tan(diagonal_fov/2)²` and `aspect_ratio = half_width / half_height`, a little algebra shows that `half_height = tan(diagonal_fov/2) / sqrt(aspect_ratio² + 1)`, so:
+This gets the job done (and `glam` provides [Mat4::perspective_infinite_reverse_rh](https://docs.rs/glam/0.21.3/glam/f32/struct.Mat4.html#method.perspective_infinite_reverse_rh) to build this matrix for you), but it can result in an arbitrarily wide field of view if the screen (or window) is sufficiently short and wide. Personally I'm a fan of specifying a diagonal field of view and aspect ratio. Due to the Pythagorean theorem:
+
+\\[
+  \"half_width\"^2 + \"half_height\"^2 = tan(\"diagonal_fov\"/2)^2
+\\]
+
+Substituting via \\(\"half_width\" = \"aspect_ratio\" * \"half_height\"\\), we can solve for \\(\"half_height\"\\):
+
+\\[
+  \"half_height\" = tan(\"diagonal_fov\"/2) / sqrt(\"aspect_ratio\"^2 + 1)
+\\]
+
+Converting this to code:
 
 ```rust
 use glam::Mat4;
@@ -1112,7 +1230,9 @@ fn perspective_infinite_reverse_rh(diagonal_fov: f32, aspect_ratio: f32, near_z:
 }
 ```
 
-Hopefully this all makes linear algebra and matrices less mysterious.
+This provides a perspective matrix that can be adjusted to match the aspect ratio of any screen, yet will never have a vertical/horizontal field of view that's unexpectedly large. To reiterate, you'd handle camera positioning via other transformation matrices, and chain them together with this perspective matrix.
+
+Hopefully this is starting to make linear algebra and matrices a little less mysterious...
 
 Recap
 -----

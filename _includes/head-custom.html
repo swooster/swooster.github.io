@@ -1,3 +1,13 @@
 <!-- TODO: make it possible for individual posts to customize this? -->
 <link rel="stylesheet" type="text/css" href="/lib/jsxgraph-1.4.5/jsxgraph.css" />
 <script type="text/javascript" src="/lib/jsxgraph-1.4.5/jsxgraphcore.js"></script>
+
+<!-- TODO: look into self-hosting to reduce the amount of external tracking of viewers -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    asciimath2jax: {
+      delimiters: [['\\(','\\)'], ['\\[','\\]']]
+    }
+  });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=AM_CHTML"></script>
