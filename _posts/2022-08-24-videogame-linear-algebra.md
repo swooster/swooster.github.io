@@ -12,7 +12,7 @@ As a kid, I always wondered how 3D videogames figured out where to draw things o
 The Big Picture
 ---------------
 
-First, a very high-level overview/recap of how games typically draw things: A game world can be thought of as a set of models to draw, and a model is a set of triangles. Each triangle has three vertices (corners), and vertices have a position and whatever other attributes may be useful, like color or texture coordinates. To draw a triangle, the game first figures out where the vertices should be drawn on the screen, then fills in the triangle, smoothly blending any attributes (like color) between vertices and passing the blended attributes to a program that determines what to actually write to each fragment (essentially pixel) of the triangle. And, if you store each pixel's distance from the screen, you can draw the triangles in any order without needing to sort them from back to front. Rinse, repeat (a lot), and you have a depiction of a 3D world.
+First, a very high-level overview/recap of how games typically draw things: A game world can be thought of as a set of models to draw, and a model is a set of triangles. Each triangle has three vertices (corners), and vertices have a position and whatever other attributes may be useful, like color or texture coordinates. To draw a triangle, the game first figures out where the vertices should be drawn on the screen, then fills in the triangle, smoothly blending any attributes (like color) between vertices and passing the blended attributes to a program that determines what to actually write to each fragment (essentially pixel) of the triangle. And, if you store each pixel's distance from the camera, you can draw the triangles in any order without needing to sort them from back to front. Rinse, repeat (a lot), and you have a depiction of a 3D world.
 
 We're interested in the part where, given a 3D position of a vertex, we figure out where that would be on the screen. Additionally, because it's common for games to draw millions of triangles, whatever we come up with needs to be _fast_. However, launching into the full-blown solution would be difficult, so we need to build towards it:
 
@@ -68,6 +68,7 @@ The most important thing to know about trigonometry is the meaning of [\\(sin(a)
     name: 'a',
     highline: { strokeColor: aColor },
     label: { strokeColor: aColor },
+    fillColor: 'magenta',
   });
   let cosText = board.create('text', [-2, -1.5, () => 'cos(a) = ' + Math.cos(a.Value()).toFixed(2) ], {
     color: cosColor,
@@ -151,7 +152,7 @@ Due to the first definition, mathematicians are fond of depicting vectors via ar
   board.suspendUpdate();
 
   let origin = board.create('point', [0, 0], { fixed: true, visible: false });
-  let bEnd = board.create('point', [1, 3], { withLabel: false });
+  let bEnd = board.create('point', [1, 3], { withLabel: false, color: 'magenta' });
   let b = board.create('arrow', [origin, bEnd], { name: "b", withLabel: true });
 
   let aStart = board.create('point', [-8, -2], { visible: false });
@@ -199,9 +200,9 @@ This corresponds to adding vectors head-to-tail:
   board.suspendUpdate();
 
   let origin = board.create('point', [0, 0], { fixed: true, visible: false });
-  let aEnd = board.create('point', [3, 8], { withLabel: false });
+  let aEnd = board.create('point', [3, 8], { withLabel: false, color: 'magenta' });
   let a = board.create('arrow', [origin, aEnd], { color: 'darkred' });
-  let bEnd = board.create('point', [9, -2], { withLabel: false });
+  let bEnd = board.create('point', [9, -2], { withLabel: false, color: 'magenta' });
   let b = board.create('arrow', [origin, bEnd], { color: 'darkblue' });
   let abEnd = board.create('parallelpoint', [origin, aEnd, bEnd], { visible: false });
   let ab = board.create('arrow', [origin, abEnd], { color: 'purple' });
@@ -239,10 +240,13 @@ This scales (resizes) the vector, hence the term "scalar":
     [-10, -8],
     [10, -8],
     [-2, 1.5, 2]
-  ], { name: 'a' });
+  ], {
+    name: 'a',
+    fillColor: 'magenta',
+  });
 
   let origin = board.create('point', [0, 0], { fixed: true, visible: false });
-  let vEnd = board.create('point', [6, 2], { name: "V", label: { autoPosition: true } });
+  let vEnd = board.create('point', [6, 2], { name: "V", color: 'magenta', label: { autoPosition: true } });
   let v = board.create('arrow', [origin, vEnd]);
 
   let avEnd = board.create('point', [
@@ -310,6 +314,7 @@ Imagine you're building a 2D game where you can rotate the camera or world, perh
   ], {
     name: 'angle',
     snapWidth: 1,
+    fillColor: 'magenta',
   });
   let rotation = board.create('transform', [() => angle.Value() * Math.PI / 180, [0, 0]], {type: 'rotate'});
 
@@ -324,7 +329,7 @@ Imagine you're building a 2D game where you can rotate the camera or world, perh
   board.unsuspendUpdate();
 }</script>
 
-How might you do that? For me, the most obvious way would be a bit of trig: Convert the points to [polar coordinates](https://en.wikipedia.org/wiki/Polar_coordinate_system) (angle and distance from origin), adjust the angle, then convert back. The code for that might look something like this: (I'm using [`glam`](https://crates.io/crates/glam) for the examples because it's fairly simple and minimal)
+How might you do that? For me, the most obvious way would be a bit of trig: Convert the points to [polar coordinates](https://en.wikipedia.org/wiki/Polar_coordinate_system) (angle and distance from origin), adjust the angle, then convert back. The code for that might look something like this: (I'm using the vector/linear-algebra library [`glam`](https://crates.io/crates/glam) for the examples because it's fairly simple and minimal)
 
 ```rust
 use glam::Vec2;
@@ -350,7 +355,7 @@ pub fn rotate(p: Vec2, rotation_angle: Radians) -> Vec2 {
 }
 ```
 
-That _works_, but it's much slower than it needs to be. In computer graphics, we generally regard additions and multiplications as dirt-cheap, and stuff like `sqrt(x)`, `atan2(y, x)`, `sin(x)`, or `cos(x)` as expensive. Not only does the above code have to call all those nasty expensive functions, but their inputs all ultimately depend on `p` so the expensive stuff needs to be recalculated _for every single point that gets rotated_. Fortunately, there's a way to factor out the expensive computations...
+That _works_, but it's much slower than it needs to be. In computer graphics, we generally regard additions and multiplications as dirt-cheap, and stuff like `sqrt(x)`, `atan2(y, x)`, `sin(x)`, or `cos(x)` as expensive (it varies, but generally assume at least an order of magnitude slower than addition). Not only does the above code have to call all those nasty expensive functions, but their inputs all ultimately depend on `p` so the expensive stuff needs to be recalculated _for every single point that gets rotated_. Fortunately, there's a way to factor out the expensive computations...
 
 Vector algebra courses sometimes like to make a big fuss over how cartesian coordinates are just a shorthand for a [linear combination](https://en.wikipedia.org/wiki/Linear_combination) of [basis vectors](https://en.wikipedia.org/wiki/Basis_(linear_algebra)), i.e.:
 
@@ -380,6 +385,7 @@ This turns out to be important because if you have a point \\(p\\) written in te
   ], {
     name: 'angle',
     snapWidth: 1,
+    fillColor: 'magenta',
   });
 
   let origin = board.create('point', [0, 0], { fixed: true, visible: false });
@@ -398,7 +404,12 @@ This turns out to be important because if you have a point \\(p\\) written in te
   let pEnd = board.create('point', [
     () => scaledBasisXEnd.X() + 2 * basisYEnd.X(),
     () => scaledBasisXEnd.Y() + 2 * basisYEnd.Y(),
-  ], { name: "p = \\(4 hat x + 2 hat y\\)", fixed: true, label: { parse: false, useMathJax: true } } );
+  ], {
+    name: "p = \\(4 hat x + 2 hat y\\)",
+    fixed: true,
+    color: 'blue',
+    label: { parse: false, useMathJax: true }
+  } );
 
   let scaledBasisX = board.create('arrow', [origin, scaledBasisXEnd], { color: '#f88' });
   let scaledBasisY = board.create('arrow', [scaledBasisXEnd, pEnd], { color: '#8f8' });
@@ -457,6 +468,8 @@ pub fn rotate(p: Vec2, rotation_angle: Radians) -> Vec2 {
         y: rotation_angle.0.sin(),
     };
     let basis_y = Vec2 {
+        // We can avoid recomputing sin(rotation_angle) or cos(rotation_angle)
+        // by reusing the already-calculated values from basis_x.
         x: -basis_x.y,
         y: basis_x.x,
     };
@@ -523,24 +536,17 @@ Suppose we want to adjust a camera's zoom level. That could be handled by scalin
   });
   board.suspendUpdate();
 
-  let scaleX = board.create('slider', [
+  let scale = board.create('slider', [
     [-10, -8],
     [10, -8],
     [-3, 1.5, 3]
   ], {
-    name: 'x scale',
+    name: 'scale',
     snapWidth: 0.1,
-  });
-  let scaleY = board.create('slider', [
-    [-10, -9],
-    [10, -9],
-    [-3, 1.5, 3]
-  ], {
-    name: 'y scale',
-    snapWidth: 0.1,
+    fillColor: 'magenta',
   });
 
-  let scale = board.create('transform', [() => scaleX.Value(), () => scaleY.Value()], {type: 'scale'});
+  let transform = board.create('transform', [() => scale.Value(), () => scale.Value()], {type: 'scale'});
 
   let attrs = {
     fixed: true,
@@ -548,12 +554,12 @@ Suppose we want to adjust a camera's zoom level. That could be handled by scalin
     withLabel: false,
   };
   let points = smileyCoords.map(p => board.create('point', p, {...attrs, color: 'lightgrey'}));
-  let rotatedPoints = points.map(p => board.create('point', [p, scale], {...attrs, color: 'blue'}));
+  let rotatedPoints = points.map(p => board.create('point', [p, transform], {...attrs, color: 'blue'}));
 
   board.unsuspendUpdate();
 }</script>
 
-In much the same way that rotating bases vectors will rotate any point written in terms of those basis vectors, scaling basis vectors will scale any point written in terms of them:
+In much the same way that rotating basis vectors will rotate any point written in terms of those basis vectors, scaling basis vectors will scale any point written in terms of them:
 
 <figure>
   <div id="figure-basis-scaling" class="jxgbox" style="aspect-ratio: 3/2"></div>
@@ -566,31 +572,24 @@ In much the same way that rotating bases vectors will rotate any point written i
   });
   board.suspendUpdate();
 
-  let scaleX = board.create('slider', [
-    [-5, -3],
-    [5, -3],
+  let scale = board.create('slider', [
+    [-5, -3.5],
+    [5, -3.5],
     [-3, 1.5, 3]
   ], {
-    name: 'x scale',
+    name: 'scale',
     snapWidth: 0.1,
-  });
-  let scaleY = board.create('slider', [
-    [-5, -4],
-    [5, -4],
-    [-3, 1.5, 3]
-  ], {
-    name: 'y scale',
-    snapWidth: 0.1,
+    fillColor: 'magenta',
   });
 
   let origin = board.create('point', [0, 0], { fixed: true, visible: false });
   let basisXEnd = board.create('point', [
-    () => scaleX.Value(),
+    () => scale.Value(),
     0,
   ], { visible: false } );
   let basisYEnd = board.create('point', [
     0,
-    () => scaleY.Value(),
+    () => scale.Value(),
   ], { visible: false } );
   let scaledBasisXEnd = board.create('point', [
     () => 4 * basisXEnd.X(),
@@ -599,7 +598,12 @@ In much the same way that rotating bases vectors will rotate any point written i
   let pEnd = board.create('point', [
     () => scaledBasisXEnd.X() + 2 * basisYEnd.X(),
     () => scaledBasisXEnd.Y() + 2 * basisYEnd.Y(),
-  ], { name: "\\(p = 4 hat x + 2 hat y\\)", fixed: true, label: { parse: false, useMathJax: true } } );
+  ], {
+    name: "\\(p = 4 hat x + 2 hat y\\)",
+    fixed: true,
+    color: 'blue',
+    label: { parse: false, useMathJax: true }
+  } );
 
   let scaledBasisX = board.create('arrow', [origin, scaledBasisXEnd], { color: '#f88' });
   let scaledBasisY = board.create('arrow', [scaledBasisXEnd, pEnd], { color: '#8f8' });
@@ -608,14 +612,15 @@ In much the same way that rotating bases vectors will rotate any point written i
   let basisY = board.create('arrow', [origin, basisYEnd], { color: 'darkgreen' });
 
   let basisXMid = board.create('midpoint', [origin, basisXEnd], { visible: false });
-  let basisXLabel = board.create('text', [0, 0, '\\(hat x\\)'], {
+  let basisXLabel = board.create('text', [0, 0.1, '\\(hat x\\)'], {
     anchor: basisXMid,
     fixed: true,
     parse: false,
     useMathJax: true,
+    anchorY: 'bottom',
   });
   let basisYMid = board.create('midpoint', [origin, basisYEnd], { visible: false });
-  let basisYLabel = board.create('text', [0, 0, '\\(hat y\\)'], {
+  let basisYLabel = board.create('text', [-0.1, 0, '\\(hat y\\)'], {
     anchor: basisYMid,
     fixed: true,
     parse: false,
@@ -624,18 +629,20 @@ In much the same way that rotating bases vectors will rotate any point written i
   });
 
   let scaledBasisXMid = board.create('midpoint', [origin, scaledBasisXEnd], { visible: false });
-  let scaledBasisXLabel = board.create('text', [0, 0, '\\(4 hat x\\)'], {
+  let scaledBasisXLabel = board.create('text', [0, 0.1, '\\(4 hat x\\)'], {
     anchor: scaledBasisXMid,
     fixed: true,
     parse: false,
     useMathJax: true,
+    anchorY: 'bottom',
   });
   let scaledBasisYMid = board.create('midpoint', [scaledBasisXEnd, pEnd], { visible: false });
-  let scaledBasisYLabel = board.create('text', [0, 0, '\\(2 hat y\\)'], {
+  let scaledBasisYLabel = board.create('text', [-0.1, 0, '\\(2 hat y\\)'], {
     anchor: scaledBasisYMid,
     fixed: true,
     parse: false,
     useMathJax: true,
+    anchorX: 'right',
   });
 
   board.unsuspendUpdate();
@@ -686,50 +693,7 @@ pub fn scaling(scale: f32) -> Transformation {
 }
 ```
 
-With some more tweaks, we can get `Transformation` to also handle translation (moving points around, to handle camera panning)...
-
-<figure>
-  <div id="figure-translation" class="jxgbox" style="aspect-ratio: 3/2"></div>
-</figure>
-<script type="text/javascript">{
-  let board = JXG.JSXGraph.initBoard('figure-translation', {
-    boundingbox: [-15, 9, 15, -11],
-    axis: true,
-    showNavigation: false,
-  });
-  board.suspendUpdate();
-
-  let translationX = board.create('slider', [
-    [-10, -8],
-    [5, -8],
-    [-15, -5, 15]
-  ], {
-    name: 'x translation',
-    snapWidth: 0.5,
-  });
-  let translationY = board.create('slider', [
-    [-10, -9],
-    [5, -9],
-    [-15, 2, 15]
-  ], {
-    name: 'y translation',
-    snapWidth: 0.5,
-  });
-
-  let translation = board.create('transform', [() => translationX.Value(), () => translationY.Value()], {type: 'translate'});
-
-  let attrs = {
-    fixed: true,
-    size: 3,
-    withLabel: false,
-  };
-  let points = smileyCoords.map(p => board.create('point', p, {...attrs, color: 'lightgrey'}));
-  let rotatedPoints = points.map(p => board.create('point', [p, translation], {...attrs, color: 'blue'}));
-
-  board.unsuspendUpdate();
-}</script>
-
-But first I should probably come clean: **We've re-invented [matrices](https://en.wikipedia.org/wiki/Matrix_(mathematics)) and `Transformation` is just a 2x2 matrix.**
+At this point, I should probably come clean about something... **We've re-invented [matrices](https://en.wikipedia.org/wiki/Matrix_(mathematics)) and `Transformation` is just a 2x2 matrix.**
 
 You see, functions of the form \\(f((:a, b, c, ...:)) = a vec A + b vec B + c vec C + ...\\) (for some \\(vec A\\), \\(vec B\\), \\(vec C\\), etc) are used _everywhere_, so there's a special name for them: [linear transformations](https://en.wikipedia.org/wiki/Linear_map). Mathematicians, lazy reprobates that they are, have decided to fund their syntactic sugar addiction by pawning off most of the notation of linear transformations, leaving behind only a grid of coefficients with one column per basis vector. For example, the mathematical notation for `Transformation` would be:
 
@@ -778,7 +742,52 @@ pub fn scaling(scale: f32) -> Transformation {
 
 Before moving on from the above code, I want to draw attention to the fact that it applies the matrix to a vector by multiplying the two together. Unlike regular scalar multiplication, any multiplication involving matrices ***isn't*** [commutative](https://en.wikipedia.org/wiki/Commutative_property) (so order matters). With the way I've been describing matrices (one column per basis vector), you want to multiply with the matrix on the left and the vector on the right. An easy way to remember this is that a matrix represents a function, and much like how you'd write `transform(point)` when `transform` is a function, you should write `transform * point` when `transform` is a matrix.
 
-Back to translation matrices... if you think about it, you may notice a roadblock to using a `Mat2` to implement translation: Suppose we have the vector \\((:0, 0:)\\)... applying a 2x2 matrix to that vector yields \\([[a, b], [c, d]] ((0), (0)) = 0 ((a), (c)) + 0 ((b), (d)) = ((0), (0)) + ((0), (0)) = ((0), (0))\\). In other words... if a vector is all zeros, there's no matrix that can be applied to it to produce a non-zero vector.
+Now, about translation (moving points around, to handle camera panning)...
+
+<figure>
+  <div id="figure-translation" class="jxgbox" style="aspect-ratio: 3/2"></div>
+</figure>
+<script type="text/javascript">{
+  let board = JXG.JSXGraph.initBoard('figure-translation', {
+    boundingbox: [-15, 9, 15, -11],
+    axis: true,
+    showNavigation: false,
+  });
+  board.suspendUpdate();
+
+  let translationX = board.create('slider', [
+    [-10, -8],
+    [5, -8],
+    [-15, -5, 15]
+  ], {
+    name: 'x translation',
+    snapWidth: 0.5,
+    fillColor: 'magenta',
+  });
+  let translationY = board.create('slider', [
+    [-10, -9],
+    [5, -9],
+    [-15, 2, 15]
+  ], {
+    name: 'y translation',
+    snapWidth: 0.5,
+    fillColor: 'magenta',
+  });
+
+  let translation = board.create('transform', [() => translationX.Value(), () => translationY.Value()], {type: 'translate'});
+
+  let attrs = {
+    fixed: true,
+    size: 3,
+    withLabel: false,
+  };
+  let points = smileyCoords.map(p => board.create('point', p, {...attrs, color: 'lightgrey'}));
+  let rotatedPoints = points.map(p => board.create('point', [p, translation], {...attrs, color: 'blue'}));
+
+  board.unsuspendUpdate();
+}</script>
+
+If you think about it, you may notice a roadblock to using a `Mat2` to implement translation: Suppose we have the vector \\((:0, 0:)\\)... applying a 2x2 matrix to that vector yields \\([[a, b], [c, d]] ((0), (0)) = 0 ((a), (c)) + 0 ((b), (d)) = ((0), (0)) + ((0), (0)) = ((0), (0))\\). In other words... if a vector is all zeros, there's no matrix that can be applied to it to produce a non-zero vector.
 
 Fortunately, that problem is easy enough to kludge around: Instead of representing a point \\((x, y)\\) with the vector \\((:x, y:)\\), we'll use the vector \\((:x, y, 1:)\\). Then we can implement translation with a 3x3 matrix that looks like this:
 
@@ -851,7 +860,7 @@ impl Camera {
     let world_to_screen = camera.screen_to_world().inverse();
 ```
 
-Inverting a general-purpose matrix is somewhat expensive, but if you know you're just using the matrix to store a position/rotation/scale, graphics libraries often provide ways to do the inversion more cheaply yet accurately. For example, `glam` provides an [`Affine2`](https://docs.rs/glam/0.21.3/glam/f32/struct.Affine2.html) type that is similar to a [`Mat3`](https://docs.rs/glam/0.21.3/glam/f32/struct.Mat3.html) generated from [`Mat3::from_scale_angle_translation`](https://docs.rs/glam/0.21.3/glam/f32/struct.Mat3.html#method.from_scale_angle_translation), except it's cheaper to invert.
+Inverting a general-purpose matrix is somewhat expensive, but if you know you're just using the matrix to store a position/rotation/scale, graphics libraries often provide ways to do the inversion more cheaply yet accurately. For example, `glam` provides an [`Affine2`](https://docs.rs/glam/0.21.3/glam/f32/struct.Affine2.html) type that is essentially a [`Mat3`](https://docs.rs/glam/0.21.3/glam/f32/struct.Mat3.html) generated from [`Mat3::from_scale_angle_translation`](https://docs.rs/glam/0.21.3/glam/f32/struct.Mat3.html#method.from_scale_angle_translation), except it's cheaper to invert. (an [affine](https://en.wikipedia.org/wiki/Affine_transformation) matrix can handle any combination of scaling/rotation/translation, but not 3D perspectives)
 
 There's one last thing worth mentioning before we go on to 3D... It's often useful to distinguish between points and directions. If you have a vector that represents a particular point in the game world, you want a world-to-screen transformation to apply translation. If you have a vector that represents a direction (such as a navigation marker on the HUD pointing towards an important location), you want the world-to-screen transformation to rotate it appropriately, but not translate it. Turns out you can do that by setting the last component to 0 instead of 1: The 0 will be multiplied against the last column of the matrix (the translation column), zeroing out any translation but leaving the rotation/scaling columns intact. Graphics libraries sometimes recognize this distinction. `glam` provides [`Mat3::transform_point2`](https://docs.rs/glam/0.21.3/glam/f32/struct.Mat3.html#method.transform_point2) (for points obviously) and [`Mat3::transform_vector2`](https://docs.rs/glam/0.21.3/glam/f32/struct.Mat3.html#method.transform_vector2) (for directions) to extend 2D vectors with an appropriate 3rd component before applying the matrix.
 
@@ -880,15 +889,28 @@ You know how objects look smaller as they get farther away? That's what perspect
   let frustumBottom = board.create('line', [[0, 0], [3, -1]], { fixed: true, straightFirst: false, color: 'lightgrey' });
 
   let chickenUrl = "{{base}}/chicken.svg";
-  let chicken = board.create('image', [chickenUrl, [2, -1], [0.25, 1] ]);
+  let chicken = board.create('image', [chickenUrl, [2, -1], [0.25, 1] ], {
+  });
   let dragme = board.create('text', [
     () => chicken.X() + chicken.W() / 2,
-    () => chicken.Y() + chicken.H(),
+    () => chicken.Y() + chicken.H() + 0.1,
     "Drag me!"
   ], {
     fixed: true,
     anchorX: 'middle',
     anchorY: 'bottom',
+  });
+
+  let chickenInteractivity = board.create('polygon', [
+    [() => chicken.X(), () => chicken.Y()],
+    [() => chicken.X() + chicken.W(), () => chicken.Y() - 0.1],
+    [() => chicken.X() + chicken.W(), () => chicken.Y() + chicken.H() + 0.1],
+    [() => chicken.X(), () => chicken.Y() + chicken.H()],
+  ], {
+    fixed: true,
+    withLines: false,
+    vertices: { visible: false },
+    fillColor: 'magenta',
   });
 
   board.unsuspendUpdate();
@@ -962,7 +984,7 @@ Let's start off creating a perspective transformation matrix for the easiest pos
   });
 
   let origin = board.create('point', [0, 0], { fixed: true, visible: false });
-  let p = board.create('point', [2.5, -1.5], { name: "p" });
+  let p = board.create('point', [2.5, -1.5], { name: "p", color: 'magenta' });
   let pRay = board.create('arrow', [origin, p], {
     color: 'teal',
   });
@@ -1047,7 +1069,7 @@ This which represents the function:
                     = ((x), (y), (\"near_z\" * w), (z))
 \\]
 
-...and \\((:x, y, \"near_z\" * w, z:)\\) represents the point \\((x/z, y/z, (\"near_z\" * w)/z)\\). Notice that when \\(w = 1\\), the expression \\((\"near_z\" * w)/z\\) evaluates to 1 when \\(z = \"near_z\"\\), and evaluates to 0 when \\(z = oo\\). This matrix does what we want: It represents a camera sitting at the origin, pointing towards +Z, with a 90° [FOV](https://en.wikipedia.org/wiki/Field_of_view_in_video_games), and it returns appropriate screen coords and depth for any point passed to it!
+...and \\((:x, y, \"near_z\" * w, z:)\\) represents the point \\((x/z, y/z, (\"near_z\" * w)/z)\\). Notice that if \\(w = 1\\), the expression \\((\"near_z\" * w)/z\\) evaluates to 1 at \\(z = \"near_z\"\\), and evaluates to 0 at \\(z = oo\\). This matrix does what we want: It represents a camera sitting at the origin, pointing towards +Z, with a 90° [FOV](https://en.wikipedia.org/wiki/Field_of_view_in_video_games), and it returns appropriate screen coords and depth for any point passed to it!
 
 Adjusting 3D perspectives
 -------------------------
@@ -1078,6 +1100,8 @@ impl Camera {
 
         // This is our perspective matrix!
         let camera_to_clip = Mat4::from_cols(
+            // BEWARE! Because each line corresponds to column, NOT a row,
+            // this matrix looks flipped compared to mathematical notation
             [1.0, 0.0, 0.0, 0.0].into(),
             [0.0, 1.0, 0.0, 0.0].into(),
             [0.0, 0.0, 0.0, 1.0].into(),
@@ -1125,7 +1149,7 @@ Next, we need to handle FOV adjustments so that we're not stuck drawing square i
   let camera = board.create('image', [cameraUrl, [-0.75, 1], [0.75, 1.33] ], { fixed: true });
 
   let screenPlane = board.create('line', [[1, 0], [1, 1]], { visible: false });
-  let screenTop = board.create('glider', [1.0, 1.0, screenPlane], { name: "screen height" });
+  let screenTop = board.create('glider', [1.0, 1.0, screenPlane], { name: "screen height", color: 'magenta' });
   let screenBottom = board.create('point', [1, () => -screenTop.Y()], { visible: false });
 
   let frustumTop = board.create('line', [[0, 0], screenTop], { fixed: true, straightFirst: false, color: 'lightgrey' });
@@ -1139,7 +1163,7 @@ Next, we need to handle FOV adjustments so that we're not stuck drawing square i
   });
 
   let origin = board.create('point', [0, 0], { fixed: true, visible: false });
-  let p = board.create('point', [2.5, -1.5], { name: "p" });
+  let p = board.create('point', [2.5, -1.5], { name: "p", color: 'magenta' });
   let pRay = board.create('arrow', [origin, p], {
     color: 'teal',
   });
@@ -1191,6 +1215,7 @@ fn perspective_infinite_reverse_rh(vertical_fov: f32, aspect_ratio: f32, near_z:
     let half_height = (vertical_fov / 2.0).tan();
     let half_width = aspect_ratio * half_height;
     Mat4::from_cols(
+        // Again, note that this looks flipped compared to mathematical notation
         [1.0 / half_width, 0.0, 0.0, 0.0].into(),
         [0.0, 1.0 / half_height, 0.0, 0.0].into(),
         [0.0, 0.0, 0.0, 1.0].into(),
@@ -1199,31 +1224,22 @@ fn perspective_infinite_reverse_rh(vertical_fov: f32, aspect_ratio: f32, near_z:
 }
 ```
 
-This gets the job done (and `glam` provides [Mat4::perspective_infinite_reverse_rh](https://docs.rs/glam/0.21.3/glam/f32/struct.Mat4.html#method.perspective_infinite_reverse_rh) to build this matrix for you), but it can result in an arbitrarily wide field of view if the screen (or window) is sufficiently short and wide. Personally I'm a fan of specifying a diagonal field of view and aspect ratio. Due to the Pythagorean theorem:
-
-\\[
-  \"half_width\"^2 + \"half_height\"^2 = tan(\"diagonal_fov\"/2)^2
-\\]
-
-Substituting via \\(\"half_width\" = \"aspect_ratio\" * \"half_height\"\\), we can solve for \\(\"half_height\"\\):
-
-\\[
-  \"half_height\" = tan(\"diagonal_fov\"/2) / sqrt(\"aspect_ratio\"^2 + 1)
-\\]
-
-Converting this to code:
+This gets the job done (and `glam` provides [Mat4::perspective_infinite_reverse_rh](https://docs.rs/glam/0.21.3/glam/f32/struct.Mat4.html#method.perspective_infinite_reverse_rh) to build this matrix for you), but it can result in an arbitrarily wide field of view if the screen (or window) is sufficiently short and wide. Personally I'm a fan of specifying a diagonal field of view and aspect ratio. Notice that if you represent a rectangle as the vector \\((:width, height:)\\) then the length of the vector is the length of the rectangle's diagonal and scaling the vector keeps the aspect ratio the same, so:
 
 ```rust
-use glam::Mat4;
+use glam::{Mat4, Vec2};
 
 // diagonal_fov is in radians
 // aspect_ratio is width/height
 fn perspective_infinite_reverse_rh(diagonal_fov: f32, aspect_ratio: f32, near_z: f32) -> Mat4 {
-    let half_height = (diagonal_fov / 2.0).tan() / (aspect_ratio * aspect_ratio + 1.0).sqrt();
-    let half_width = aspect_ratio * half_height;
+    let diagonal_tan = (diagonal_fov / 2.0).tan();
+    let aspect = Vec2::new(aspect_ratio, 1.0);
+    // This produces a rectangle with the aspect ratio of `aspect`, and with `diagonal_len` across the diagonal
+    // Note: v.normalize() = v / v.length()
+    let halves = diagonal_len * aspect.normalize();
     Mat4::from_cols(
-        [1.0 / half_width, 0.0, 0.0, 0.0].into(),
-        [0.0, 1.0 / half_height, 0.0, 0.0].into(),
+        [1.0 / halves.x, 0.0, 0.0, 0.0].into(),
+        [0.0, 1.0 / halves.y, 0.0, 0.0].into(),
         [0.0, 0.0, 0.0, 1.0].into(),
         [0.0, 0.0, near_z, 0.0].into(),
     )
